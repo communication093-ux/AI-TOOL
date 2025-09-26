@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechFlow Solutions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .page {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            margin: 2rem auto;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .page-content {
+            padding: 3rem;
+        }
+
+        h1, h2 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .form-container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            background: linear-gradient(45deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-radius: 15px;
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: #666;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .service-item {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .service-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .blog-posts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .blog-post {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .blog-post:hover {
+            transform: translateY(-5px);
+        }
+
+        .blog-post-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 1.5rem;
+        }
+
+        .blog-post-content {
+            padding: 1.5rem;
+        }
+
+        .logout-message {
+            text-align: center;
+            padding: 4rem;
+        }
+
+        .logout-message h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .logout-message p {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .status-indicator {
+            display: none;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .status-indicator.logged-in {
+            background: #4CAF50;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .page-content {
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">TechFlow Solutions</div>
+            <ul class="nav-links">
+                <li><a href="#" onclick="showPage('home')" class="nav-link active">Home</a></li>
+                <li><a href="#" onclick="showPage('about')" class="nav-link">About Us</a></li>
+                <li><a href="#" onclick="showPage('services')" class="nav-link">Services</a></li>
+                <li><a href="#" onclick="showPage('blog')" class="nav-link">Blog</a></li>
+                <li><a href="#" onclick="showPage('contact')" class="nav-link">Contact</a></li>
+                <li><a href="#" onclick="showPage('login')" class="nav-link" id="auth-link">Login</a></li>
+                <li><span class="status-indicator" id="status-indicator">Logged In</span></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- Login Page -->
+        <div class="page active" id="login-page">
+            <div class="page-content">
+                <h1>Welcome Back</h1>
+                <div class="form-container">
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" required>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn" style="width: 100%;">Login</button>
+                        </div>
+                        <div style="text-align: center;">
+                            <p>Don't have an account? <a href="#" onclick="showPage('register')" style="color: #667eea;">Sign up here</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Registration Page -->
+        <div class="page" id="register-page">
+            <div class="page-content">
+                <h1>Join Us Today</h1>
+                <div class="form-container">
+                    <form id="register-form">
+                        <div class="form-group">
+                            <label for="reg-name">Full Name</label>
+                            <input type="text" id="reg-name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-email">Email Address</label>
+                            <input type="email" id="reg-email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-password">Password</label>
+                            <input type="password" id="reg-password" name="password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-confirm">Confirm Password</label>
+                            <input type="password" id="reg-confirm" name="confirm-password" required>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn" style="width: 100%;">Create Account</button>
+                        </div>
+                        <div style="text-align: center;">
+                            <p>Already have an account? <a href="#" onclick="showPage('login')" style="color: #667eea;">Login here</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Home Page -->
+        <div class="page" id="home-page">
+            <div class="page-content">
+                <div class="hero">
+                    <h1>Welcome to TechFlow Solutions</h1>
+                    <p>Empowering businesses with cutting-edge technology solutions</p>
+                    <a href="#" onclick="showPage('services')" class="btn">Explore Our Services</a>
+                </div>
+                
+                <div class="features">
+                    <div class="feature-card">
+                        <div class="feature-icon">💡</div>
+                        <h3>Innovation</h3>
+                        <p>We bring fresh ideas and innovative solutions to help your business thrive in the digital age.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Performance</h3>
+                        <p>Lightning-fast solutions that deliver results and exceed expectations every single time.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔒</div>
+                        <h3>Security</h3>
+                        <p>Your data and privacy are our top priorities with enterprise-grade security measures.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🌟</div>
+                        <h3>Excellence</h3>
+                        <p>We strive for perfection in every project, delivering quality that speaks for itself.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Us Page -->
+        <div class="page" id="about-page">
+            <div class="page-content">
+                <h1>About TechFlow Solutions</h1>
+                <div style="text-align: center; margin-bottom: 3rem;">
+                    <p style="font-size: 1.2rem; color: #666; max-width: 800px; margin: 0 auto;">We are a team of passionate technologists dedicated to transforming businesses through innovative digital solutions.</p>
+                </div>
+                
+                <div class="features">
+                    <div class="feature-card">
+                        <h3>Our Mission</h3>
+                        <p>To empower businesses with technology solutions that drive growth, efficiency, and success in an ever-evolving digital landscape.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Our Vision</h3>
+                        <p>To be the leading technology partner for businesses worldwide, known for our innovation, reliability, and exceptional service.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Our Values</h3>
+                        <p>Innovation, integrity, collaboration, and customer success are at the core of everything we do.</p>
+                    </div>
+                </div>
+                
+                <div style="background: white; padding: 3rem; border-radius: 15px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1); margin-top: 3rem;">
+                    <h2>Our Story</h2>
+                    <p>Founded in 2020, TechFlow Solutions began as a small team of developers with a big dream. We wanted to help businesses harness the power of technology to achieve their goals and exceed their potential.</p>
+                    <br>
+                    <p>Today, we've grown into a full-service technology company, but we've never lost sight of our original mission: to provide personalized, innovative solutions that make a real difference for our clients.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services Page -->
+        <div class="page" id="services-page">
+            <div class="page-content">
+                <h1>Our Services</h1>
+                <p style="text-align: center; font-size: 1.2rem; color: #666; margin-bottom: 3rem;">We offer comprehensive technology solutions to help your business succeed</p>
+                
+                <div class="services-grid">
+                    <div class="service-item">
+                        <h3>Web Development</h3>
+                        <p>Custom websites and web applications built with modern technologies. From simple landing pages to complex e-commerce platforms.</p>
+                        <ul style="margin-top: 1rem; padding-left: 1.5rem;">
+                            <li>Responsive Design</li>
+                            <li>E-commerce Solutions</li>
+                            <li>Content Management Systems</li>
+                            <li>Progressive Web Apps</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="service-item">
+                        <h3>Mobile App Development</h3>
+                        <p>Native and cross-platform mobile applications that deliver exceptional user experiences across all devices.</p>
+                        <ul style="margin-top: 1rem; padding-left: 1.5rem;">
+                            <li>iOS & Android Apps</li>
+                            <li>Cross-platform Solutions</li>
+                            <li>UI/UX Design</li>
+                            <li>App Store Optimization</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="service-item">
+                        <h3>Cloud Solutions</h3>
+                        <p>Scalable cloud infrastructure and services to help your business grow without technical limitations.</p>
+                        <ul style="margin-top: 1rem; padding-left: 1.5rem;">
+                            <li>Cloud Migration</li>
+                            <li>DevOps & Automation</li>
+                            <li>Database Management</li>
+                            <li>Security & Backup</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="service-item">
+                        <h3>Digital Marketing</h3>
+                        <p>Comprehensive digital marketing strategies to help you reach your target audience and grow your brand online.</p>
+                        <ul style="margin-top: 1rem; padding-left: 1.5rem;">
+                            <li>SEO Optimization</li>
+                            <li>Social Media Marketing</li>
+                            <li>Content Strategy</li>
+                            <li>Analytics & Reporting</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Blog Page -->
+        <div class="page" id="blog-page">
+            <div class="page-content">
+                <h1>Latest Insights</h1>
+                <p style="text-align: center; font-size: 1.2rem; color: #666; margin-bottom: 3rem;">Stay updated with the latest trends and insights in technology</p>
+                
+                <div class="blog-posts">
+                    <article class="blog-post">
+                        <div class="blog-post-header">
+                            <h3>The Future of Web Development</h3>
+                            <p>March 15, 2024</p>
+                        </div>
+                        <div class="blog-post-content">
+                            <p>Exploring the latest trends and technologies shaping the future of web development, from AI integration to progressive web applications.</p>
+                            <a href="#" class="btn" style="margin-top: 1rem;">Read More</a>
+                        </div>
+                    </article>
+                    
+                    <article class="blog-post">
+                        <div class="blog-post-header">
+                            <h3>Cloud Migration Best Practices</h3>
+                            <p>March 10, 2024</p>
+                        </div>
+                        <div class="blog-post-content">
+                            <p>A comprehensive guide to successfully migrating your business applications to the cloud while minimizing downtime and costs.</p>
+                            <a href="#" class="btn" style="margin-top: 1rem;">Read More</a>
+                        </div>
+                    </article>
+                    
+                    <article class="blog-post">
+                        <div class="blog-post-header">
+                            <h3>Mobile-First Design Principles</h3>
+                            <p>March 5, 2024</p>
+                        </div>
+                        <div class="blog-post-content">
+                            <p>Understanding why mobile-first design is crucial for modern applications and how to implement it effectively.</p>
+                            <a href="#" class="btn" style="margin-top: 1rem;">Read More</a>
+                        </div>
+                    </article>
+                    
+                    <article class="blog-post">
+                        <div class="blog-post-header">
+                            <h3>Cybersecurity in 2024</h3>
+                            <p>February 28, 2024</p>
+                        </div>
+                        <div class="blog-post-content">
+                            <p>Essential cybersecurity practices every business should implement to protect against modern threats and vulnerabilities.</p>
+                            <a href="#" class="btn" style="margin-top: 1rem;">Read More</a>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Page -->
+        <div class="page" id="contact-page">
+            <div class="page-content">
+                <h1>Get In Touch</h1>
+                <p style="text-align: center; font-size: 1.2rem; color: #666; margin-bottom: 3rem;">We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start;">
+                    <div class="form-container" style="max-width: none;">
+                        <form id="contact-form">
+                            <div class="form-group">
+                                <label for="contact-name">Name</label>
+                                <input type="text" id="contact-name" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contact-email">Email</label>
+                                <input type="email" id="contact-email" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contact-subject">Subject</label>
+                                <input type="text" id="contact-subject" name="subject" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contact-message">Message</label>
+                                <textarea id="contact-message" name="message" rows="5" required></textarea>
+                            </div>
+                            <button type="submit" class="btn" style="width: 100%;">Send Message</button>
+                        </form>
+                    </div>
+                    
+                    <div style="background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);">
+                        <h3 style="margin-bottom: 1.5rem;">Contact Information</h3>
+                        <div style="margin-bottom: 1.5rem;">
+                            <strong>📍 Address:</strong><br>
+                            123 Tech Street<br>
+                            Innovation District<br>
+                            Tech City, TC 12345
+                        </div>
+                        <div style="margin-bottom: 1.5rem;">
+                            <strong>📞 Phone:</strong><br>
+                            +1 (555) 123-4567
+                        </div>
+                        <div style="margin-bottom: 1.5rem;">
+                            <strong>✉ Email:</strong><br>
+                            hello@techflowsolutions.com
+                        </div>
+                        <div>
+                            <strong>🕒 Business Hours:</strong><br>
+                            Monday - Friday: 9:00 AM - 6:00 PM<br>
+                            Saturday: 10:00 AM - 4:00 PM<br>
+                            Sunday: Closed
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logout Page -->
+        <div class="page" id="logout-page">
+            <div class="page-content">
+                <div class="logout-message">
+                    <h1>You've Successfully Logged Out</h1>
+                    <p>Thank you for visiting TechFlow Solutions. We hope to see you again soon!</p>
+                    <a href="#" onclick="showPage('login')" class="btn">Return to Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isLoggedIn = false;
+        
+        function showPage(pageId) {
+            // Hide all pages
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+            
+            // Remove active class from all nav links
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => link.classList.remove('active'));
+            
+            // Show selected page
+            const targetPage = document.getElementById(pageId + '-page');
+            if (targetPage) {
+                targetPage.classList.add('active');
+            }
+            
+            // Add active class to clicked nav link
+            const clickedLink = event?.target;
+            if (clickedLink && clickedLink.classList.contains('nav-link')) {
+                clickedLink.classList.add('active');
+            }
+        }
+        
+        function updateAuthStatus() {
+            const authLink = document.getElementById('auth-link');
+            const statusIndicator = document.getElementById('status-indicator');
+            
+            if (isLoggedIn) {
+                authLink.textContent = 'Logout';
+                authLink.onclick = () => logout();
+                statusIndicator.classList.add('logged-in');
+                statusIndicator.style.display = 'block';
+                showPage('home');
+            } else {
+                authLink.textContent = 'Login';
+                authLink.onclick = () => showPage('login');
+                statusIndicator.style.display = 'none';
+                statusIndicator.classList.remove('logged-in');
+            }
+        }
+        
+        function logout() {
+            isLoggedIn = false;
+            updateAuthStatus();
+            showPage('logout');
+        }
+        
+        // Form handling
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (email && password) {
+                isLoggedIn = true;
+                updateAuthStatus();
+                alert('Login successful! Welcome to TechFlow Solutions.');
+            }
+        });
+        
+        document.getElementById('register-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const confirm = document.getElementById('reg-confirm').value;
+            
+            if (password !== confirm) {
+                alert('Passwords do not match!');
+                return;
+            }
+            
+            if (name && email && password) {
+                alert('Registration successful! You can now log in.');
+                showPage('login');
+            }
+        });
+        
+        document.getElementById('contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('contact-name').value;
+            const email = document.getElementById('contact-email').value;
+            const subject = document.getElementById('contact-subject').value;
+            const message = document.getElementById('contact-message').value;
+            
+            if (name && email && subject && message) {
+                alert('Thank you for your message! We\'ll get back to you soon.');
+                this.reset();
+            }
+        });
+        
+        // Initialize the page
+        showPage('login');
+        updateAuthStatus();
+    </script>
+</body>
+</html>
