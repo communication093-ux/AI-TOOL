@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Bike Challenge 🏁</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        #gameContainer {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #gameCanvas {
+            display: block;
+            background: linear-gradient(to bottom, #87CEEB 0%, #98FB98 70%, #228B22 100%);
+            border: none;
+        }
+        
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-size: 18px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            z-index: 100;
+        }
+        
+        #gameMenu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.95), rgba(118, 75, 162, 0.95));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            z-index: 200;
+        }
+        
+        .menu-title {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .menu-controls {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+        
+        .menu-button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .menu-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #ff5252, #d84315);
+        }
+        
+        #pauseMenu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            display: none;
+            z-index: 300;
+        }
+        
+        .controls-text {
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+        
+        #gameOverScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            z-index: 250;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        
+        <div id="ui">
+            <div>Speed: <span id="speed">0</span> km/h</div>
+            <div>Score: <span id="score">0</span></div>
+            <div>Coins: <span id="coins">0</span></div>
+            <div>Mode: <span id="mode">Time Trial</span></div>
+            <div>Time: <span id="timer">60</span>s</div>
+        </div>
+        
+        <div id="gameMenu">
+            <h1 class="menu-title">🏁 Ultimate Bike Challenge 🏁</h1>
+            <div class="menu-controls">
+                <h3>🎮 Game Controls:</h3>
+                <div class="controls-text">
+                    <strong>Arrow Keys / WASD</strong> → Move & Balance<br>
+                    <strong>Spacebar</strong> → Jump<br>
+                    <strong>Shift</strong> → Boost<br>
+                    <strong>Esc</strong> → Pause
+                </div>
+            </div>
+            
+            <div>
+                <h3>Choose Your Mode:</h3>
+                <button class="menu-button" onclick="startGame('time')">⏱️ Time Trial</button>
+                <button class="menu-button" onclick="startGame('adventure')">🗺️ Adventure Ride</button>
+                <button class="menu-button" onclick="startGame('stunt')">🤸 Stunt Mode</button>
+            </div>
+            
+            <p style="margin-top: 20px;">💡 Collect coins and power-ups to upgrade your bike!</p>
+            <p style="margin-top: 10px; color: #FFD700; font-weight: bold;">⚠️ WARNING: One crash = Game Over! Balance carefully!</p>
+            <p style="color: #FFF; font-size: 14px; margin-top: 10px;">Press <strong>Enter</strong> to start Time Trial, or choose a mode above</p>
+        </div>
+        
+        <div id="pauseMenu">
+            <h2>Game Paused ⏸️</h2>
+            <button class="menu-button" onclick="resumeGame()">Resume</button>
+            <button class="menu-button" onclick="restartGame()">Restart</button>
+            <button class="menu-button" onclick="backToMenu()">Main Menu</button>
+        </div>
+        
+        <div id="gameOverScreen">
+            <h2 id="gameOverTitle">Race Complete! 🏆</h2>
+            <p id="gameOverStats"></p>
+            <button class="menu-button" onclick="restartGame()">Race Again</button>
+            <button class="menu-button" onclick="backToMenu()">Main Menu</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Set canvas size
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        // Game state
+        let gameState = {
+            running: false,
+            paused: false,
+            crashed: false,
+            mode: 'time',
+            score: 0,
+            coins: 0,
+            time: 60,
+            speed: 0
+        };
+        
+        // Player bike
+        let player = {
+            x: 100,
+            y: canvas.height - 150,
+            width: 60,
+            height: 40,
+            velocityX: 0,
+            velocityY: 0,
+            onGround: false,
+            boosting: false,
+            rotation: 0
+        };
+        
+        // Game objects
+        let obstacles = [];
+        let coins = [];
+        let powerUps = [];
+        let particles = [];
+        
+        // Input handling
+        let keys = {};
+        
+        document.addEventListener('keydown', (e) => {
+            keys[e.code] = true;
+            
+            if (e.code === 'Escape') {
+                if (gameState.crashed) {
+                    backToMenu();
+                } else if (gameState.running && !gameState.paused) {
+                    pauseGame();
+                } else if (gameState.paused) {
+                    resumeGame();
+                }
+            }
+            
+            if (e.code === 'KeyR' && gameState.crashed) {
+                restartGame();
+            }
+            
+            if (e.code === 'Enter' && !gameState.running) {
+                // Default to Time Trial if no mode selected
+                startGame('time');
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            keys[e.code] = false;
+        });
+        
+        // Game functions
+        function startGame(mode) {
+            gameState.mode = mode;
+            gameState.running = true;
+            gameState.paused = false;
+            gameState.crashed = false;
+            gameState.score = 0;
+            gameState.coins = 0;
+            gameState.time = mode === 'time' ? 60 : 999;
+            
+            // Reset player
+            player.x = 100;
+            player.y = canvas.height - 150;
+            player.velocityX = 0;
+            player.velocityY = 0;
+            player.rotation = 0;
+            player.onGround = false;
+            
+            // Clear objects
+            obstacles = [];
+            coins = [];
+            powerUps = [];
+            particles = [];
+            
+            document.getElementById('gameMenu').style.display = 'none';
+            document.getElementById('gameOverScreen').style.display = 'none';
+            document.getElementById('mode').textContent = mode === 'time' ? 'Time Trial' : 
+                                                        mode === 'adventure' ? 'Adventure' : 'Stunt Mode';
+            
+            gameLoop();
+        }
+        
+        function pauseGame() {
+            gameState.paused = true;
+            document.getElementById('pauseMenu').style.display = 'block';
+        }
+        
+        function resumeGame() {
+            gameState.paused = false;
+            document.getElementById('pauseMenu').style.display = 'none';
+        }
+        
+        function restartGame() {
+            document.getElementById('pauseMenu').style.display = 'none';
+            document.getElementById('gameOverScreen').style.display = 'none';
+            startGame(gameState.mode);
+        }
+        
+        function backToMenu() {
+            gameState.running = false;
+            gameState.paused = false;
+            gameState.crashed = false;
+            document.getElementById('gameMenu').style.display = 'flex';
+            document.getElementById('pauseMenu').style.display = 'none';
+            document.getElementById('gameOverScreen').style.display = 'none';
+        }
+        
+        function crashGame() {
+            gameState.running = false;
+            gameState.crashed = true;
+            
+            // Add crash particles explosion
+            for (let i = 0; i < 20; i++) {
+                particles.push({
+                    x: player.x + player.width/2,
+                    y: player.y + player.height/2,
+                    velocityX: (Math.random() - 0.5) * 16,
+                    velocityY: -Math.random() * 12 - 2,
+                    life: 60,
+                    color: Math.random() < 0.5 ? '#FF4444' : '#FFA500'
+                });
+            }
+            
+            // Show crash screen
+            setTimeout(() => {
+                const title = '💥 CRASHED! Game Over';
+                const stats = `Final Score: ${gameState.score} | Coins: ${gameState.coins} | Distance: ${Math.round(gameState.speed * gameState.time/10)}m`;
+                
+                document.getElementById('gameOverTitle').textContent = title;
+                document.getElementById('gameOverStats').innerHTML = `${stats}<br><br>Press <strong>R</strong> to Restart or <strong>Esc</strong> to Exit`;
+                document.getElementById('gameOverScreen').style.display = 'flex';
+            }, 1000);
+        }
+        
+        function endGame() {
+            gameState.running = false;
+            const title = gameState.mode === 'time' ? 'Time\'s Up! ⏰' : 'Race Complete! 🏆';
+            const stats = `Score: ${gameState.score} | Coins: ${gameState.coins} | Speed: ${Math.round(gameState.speed)} km/h`;
+            
+            document.getElementById('gameOverTitle').textContent = title;
+            document.getElementById('gameOverStats').textContent = stats;
+            document.getElementById('gameOverScreen').style.display = 'flex';
+        }
+        
+        function updatePlayer() {
+            // Horizontal movement
+            if (keys['ArrowLeft'] || keys['KeyA']) {
+                player.velocityX = Math.max(player.velocityX - 0.5, -8);
+                player.rotation = Math.max(player.rotation - 0.1, -0.3);
+            }
+            if (keys['ArrowRight'] || keys['KeyD']) {
+                player.velocityX = Math.min(player.velocityX + 0.5, 12);
+                player.rotation = Math.min(player.rotation + 0.1, 0.3);
+            }
+            
+            // Boost
+            if (keys['ShiftLeft'] || keys['ShiftRight']) {
+                player.boosting = true;
+                player.velocityX = Math.min(player.velocityX + 0.8, 15);
+                
+                // Add boost particles
+                particles.push({
+                    x: player.x - 20,
+                    y: player.y + player.height/2,
+                    velocityX: -5 - Math.random() * 3,
+                    velocityY: (Math.random() - 0.5) * 4,
+                    life: 20,
+                    color: `hsl(${Math.random() * 60 + 15}, 100%, 60%)`
+                });
+            } else {
+                player.boosting = false;
+            }
+            
+            // Jump
+            if ((keys['Space'] || keys['ArrowUp'] || keys['KeyW']) && player.onGround) {
+                player.velocityY = -15;
+                player.onGround = false;
+            }
+            
+            // Apply friction and gravity
+            player.velocityX *= 0.95;
+            player.velocityY += 0.8; // gravity
+            
+            // Update position
+            player.x += player.velocityX;
+            player.y += player.velocityY;
+            
+            // Ground collision
+            const groundY = canvas.height - 100;
+            if (player.y + player.height > groundY) {
+                player.y = groundY - player.height;
+                player.velocityY = 0;
+                player.onGround = true;
+                player.rotation *= 0.9; // Reduce rotation when on ground
+            }
+            
+            // Keep player on screen
+            player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+            
+            // Check for crash conditions
+            if (Math.abs(player.rotation) > 1.2 || player.y > canvas.height - 50) {
+                crashGame();
+                return;
+            }
+            
+            // Update speed display
+            gameState.speed = Math.abs(player.velocityX) * 8;
+        }
+        
+        function spawnObjects() {
+            // Spawn obstacles
+            if (Math.random() < 0.02) {
+                obstacles.push({
+                    x: canvas.width,
+                    y: canvas.height - 120,
+                    width: 40,
+                    height: 40,
+                    type: Math.random() < 0.5 ? 'rock' : 'log'
+                });
+            }
+            
+            // Spawn coins
+            if (Math.random() < 0.03) {
+                coins.push({
+                    x: canvas.width,
+                    y: canvas.height - 200 - Math.random() * 100,
+                    width: 20,
+                    height: 20,
+                    rotation: 0
+                });
+            }
+            
+            // Spawn power-ups
+            if (Math.random() < 0.008) {
+                powerUps.push({
+                    x: canvas.width,
+                    y: canvas.height - 180 - Math.random() * 80,
+                    width: 25,
+                    height: 25,
+                    type: Math.random() < 0.5 ? 'speed' : 'jump',
+                    pulse: 0
+                });
+            }
+        }
+        
+        function updateObjects() {
+            // Update obstacles
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                obstacles[i].x -= 5 + gameState.speed * 0.1;
+                
+                if (obstacles[i].x + obstacles[i].width < 0) {
+                    obstacles.splice(i, 1);
+                    gameState.score += 10;
+                } else if (checkCollision(player, obstacles[i])) {
+                    // CRASH! Game Over on obstacle collision
+                    crashGame();
+                    return;
+                }
+            }
+            
+            // Update coins
+            for (let i = coins.length - 1; i >= 0; i--) {
+                coins[i].x -= 4 + gameState.speed * 0.1;
+                coins[i].rotation += 0.1;
+                
+                if (coins[i].x + coins[i].width < 0) {
+                    coins.splice(i, 1);
+                } else if (checkCollision(player, coins[i])) {
+                    coins.splice(i, 1);
+                    gameState.coins++;
+                    gameState.score += 50;
+                    
+                    // Add coin particles
+                    for (let j = 0; j < 8; j++) {
+                        particles.push({
+                            x: coins[i]?.x || player.x,
+                            y: coins[i]?.y || player.y,
+                            velocityX: (Math.random() - 0.5) * 8,
+                            velocityY: -Math.random() * 8,
+                            life: 30,
+                            color: '#FFD700'
+                        });
+                    }
+                }
+            }
+            
+            // Update power-ups
+            for (let i = powerUps.length - 1; i >= 0; i--) {
+                powerUps[i].x -= 4 + gameState.speed * 0.1;
+                powerUps[i].pulse += 0.2;
+                
+                if (powerUps[i].x + powerUps[i].width < 0) {
+                    powerUps.splice(i, 1);
+                } else if (checkCollision(player, powerUps[i])) {
+                    const powerUp = powerUps.splice(i, 1)[0];
+                    
+                    if (powerUp.type === 'speed') {
+                        player.velocityX += 5;
+                    } else if (powerUp.type === 'jump') {
+                        player.velocityY = -20;
+                    }
+                    
+                    gameState.score += 100;
+                }
+            }
+            
+            // Update particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.velocityX;
+                p.y += p.velocityY;
+                p.velocityY += 0.3;
+                p.life--;
+                
+                if (p.life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+        }
+        
+        function checkCollision(a, b) {
+            return a.x < b.x + b.width &&
+                   a.x + a.width > b.x &&
+                   a.y < b.y + b.height &&
+                   a.y + a.height > b.y;
+        }
+        
+        function render() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#87CEEB');
+            gradient.addColorStop(0.7, '#98FB98');
+            gradient.addColorStop(1, '#228B22');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw ground
+            ctx.fillStyle = '#8B4513';
+            ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
+            
+            // Draw ground texture
+            ctx.fillStyle = '#654321';
+            for (let i = 0; i < canvas.width; i += 20) {
+                ctx.fillRect(i, canvas.height - 95, 10, 5);
+            }
+            
+            // Draw clouds
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            for (let i = 0; i < 5; i++) {
+                const x = (Date.now() * 0.01 + i * 200) % (canvas.width + 100) - 50;
+                const y = 50 + i * 30;
+                drawCloud(x, y);
+            }
+            
+            // Draw particles
+            particles.forEach(p => {
+                ctx.save();
+                ctx.globalAlpha = p.life / 30;
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, 4, 4);
+                ctx.restore();
+            });
+            
+            // Draw obstacles
+            obstacles.forEach(obs => {
+                if (obs.type === 'rock') {
+                    ctx.fillStyle = '#696969';
+                    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+                    ctx.fillStyle = '#808080';
+                    ctx.fillRect(obs.x + 5, obs.y + 5, obs.width - 10, obs.height - 10);
+                } else {
+                    ctx.fillStyle = '#8B4513';
+                    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+                    ctx.fillStyle = '#A0522D';
+                    for (let i = 0; i < obs.width; i += 8) {
+                        ctx.fillRect(obs.x + i, obs.y, 2, obs.height);
+                    }
+                }
+            });
+            
+            // Draw coins
+            coins.forEach(coin => {
+                ctx.save();
+                ctx.translate(coin.x + coin.width/2, coin.y + coin.height/2);
+                ctx.rotate(coin.rotation);
+                ctx.fillStyle = '#FFD700';
+                ctx.fillRect(-coin.width/2, -coin.height/2, coin.width, coin.height);
+                ctx.fillStyle = '#FFA500';
+                ctx.fillRect(-coin.width/2 + 3, -coin.height/2 + 3, coin.width - 6, coin.height - 6);
+                ctx.restore();
+            });
+            
+            // Draw power-ups
+            powerUps.forEach(pu => {
+                const scale = 1 + Math.sin(pu.pulse) * 0.2;
+                ctx.save();
+                ctx.translate(pu.x + pu.width/2, pu.y + pu.height/2);
+                ctx.scale(scale, scale);
+                
+                if (pu.type === 'speed') {
+                    ctx.fillStyle = '#FF4444';
+                    ctx.fillRect(-pu.width/2, -pu.height/2, pu.width, pu.height);
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(-pu.width/2 + 5, -pu.height/2 + 8, 15, 3);
+                    ctx.fillRect(-pu.width/2 + 5, -pu.height/2 + 12, 20, 3);
+                } else {
+                    ctx.fillStyle = '#44FF44';
+                    ctx.fillRect(-pu.width/2, -pu.height/2, pu.width, pu.height);
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(-pu.width/2 + 8, -pu.height/2 + 5, 3, 15);
+                    ctx.fillRect(-pu.width/2 + 5, -pu.height/2 + 8, 9, 3);
+                }
+                ctx.restore();
+            });
+            
+            // Draw player
+            ctx.save();
+            ctx.translate(player.x + player.width/2, player.y + player.height/2);
+            ctx.rotate(player.rotation);
+            
+            // Bike body
+            ctx.fillStyle = player.boosting ? '#FF6B6B' : '#4ECDC4';
+            ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height);
+            
+            // Wheels
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(-player.width/2 + 8, player.height/2, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(player.width/2 - 8, player.height/2, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Rider
+            ctx.fillStyle = '#FFE4C4';
+            ctx.fillRect(-5, -player.height/2 - 15, 10, 15);
+            ctx.beginPath();
+            ctx.arc(0, -player.height/2 - 20, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.restore();
+            
+            // Boost effect
+            if (player.boosting) {
+                ctx.save();
+                ctx.globalAlpha = 0.7;
+                ctx.fillStyle = '#FFD700';
+                ctx.fillRect(player.x - 30, player.y + 10, 25, 20);
+                ctx.restore();
+            }
+        }
+        
+        function drawCloud(x, y) {
+            ctx.beginPath();
+            ctx.arc(x, y, 20, 0, Math.PI * 2);
+            ctx.arc(x + 25, y, 25, 0, Math.PI * 2);
+            ctx.arc(x + 50, y, 20, 0, Math.PI * 2);
+            ctx.arc(x + 25, y - 15, 20, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function updateTimer() {
+            if (gameState.mode === 'time' && gameState.time > 0) {
+                gameState.time -= 0.016; // Roughly 1 second per 60 frames
+                if (gameState.time <= 0) {
+                    endGame();
+                }
+            }
+        }
+        
+        function updateUI() {
+            document.getElementById('speed').textContent = Math.round(gameState.speed);
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('coins').textContent = gameState.coins;
+            document.getElementById('timer').textContent = gameState.mode === 'time' ? 
+                Math.max(0, Math.ceil(gameState.time)) : '∞';
+        }
+        
+        function gameLoop() {
+            if (!gameState.running || gameState.paused) return;
+            
+            updatePlayer();
+            if (!gameState.crashed) {
+                spawnObjects();
+                updateObjects();
+                updateTimer();
+            }
+            render();
+            updateUI();
+            
+            if (!gameState.crashed) {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        
+        // Initialize
+        updateUI();
+    </script>
+</body>
+</html>
